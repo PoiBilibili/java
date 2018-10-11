@@ -2,11 +2,6 @@ package edu.neu.coe.info6205.sort.simple;
 
 import java.util.*;
 
-/**
- * Class to implement Shell Sort.
- *
- * @param <X> the type of element on which we will be sorting (must implement Comparable).
- */
 public class ShellSort<X extends Comparable<X>> implements Sort<X> {
 
     /**
@@ -16,7 +11,6 @@ public class ShellSort<X extends Comparable<X>> implements Sort<X> {
      *          1: ordinary insertion sort;
      *          2: use powers of two less one;
      *          3: use the sequence based on 3 (the one in the book): 1, 4, 13, etc.
-     *          4: Sedgewick's sequence (not implemented).
      */
     public ShellSort(int m) {
         this.m = m;
@@ -33,30 +27,20 @@ public class ShellSort<X extends Comparable<X>> implements Sort<X> {
     public void sort(X[] xs, int from, int to) {
         int N = to - from;
         H hh = new H(N);
-        int h = hh.first();
+        int h = hh.next();
         while (h > 0) {
-            hSort(h, xs, from, to);
+            for (int i = h + from; i < to; i++)
+                for (int j = i; j >= h + from && Helper.less(xs[j], xs[j - h]); j -= h) {
+                    Helper.swap(xs, from, to, j, j - h);
+//                    System.out.println("after step: h=" + h + ", i=" + i + ":\t" + Arrays.toString(xs));
+                }
             h = hh.next();
         }
     }
 
-    /**
-     * Private method to h-sort an array.
-     */
-    private void hSort(int h, X[] xs, int from, int to) {
-        for (int i = h + from; i < to; i++)
-            for (int j = i; j >= h + from && Helper.less(xs[j], xs[j - h]); j -= h) {
-                Helper.swap(xs, from, to, j, j - h);
-            }
-    }
-
     private final int m;
 
-    /**
-     * Private inner class to provide h (gap) values.
-     */
     private class H {
-        @SuppressWarnings("CanBeFinal")
         private int h = 1;
         private boolean started = false;
 
@@ -64,11 +48,14 @@ public class ShellSort<X extends Comparable<X>> implements Sort<X> {
             switch (m) {
                 case 1:
                     // TODO
+                	h = N;
                     break;
                 case 2:
+                	while(h<N/2) h=h*2+1;
                     // TODO
                     break;
                 case 3:
+                	while(h<N/3) h=h*3+1;
                     // TODO
                     break;
                 default:
@@ -76,49 +63,29 @@ public class ShellSort<X extends Comparable<X>> implements Sort<X> {
             }
         }
 
-        /**
-         * Method to yield the first h value.
-         * NOTE: this may only be called once.
-         *
-         * @return the first (largest) value of h, given the size of the problem (N)
-         */
-        int first() {
-            if (started) throw new RuntimeException("cannot call first more than once");
-            started = true;
-            return h;
-        }
-
-        /**
-         * Method to yield the next h value in the "gap" series.
-         * NOTE: first must be called before next.
-         *
-         * @return the next value of h in the gap series.
-         */
-        int next() {
+        public int next() {
             if (started) {
                 switch (m) {
                     case 1:
-                        // TODO
                         return 0;
                     case 2:
                         // TODO
-                        return 0;
+                    	h = h/2;
+                        return h;
                     case 3:
                         // TODO
-                        return 0;
+                    	h = h/3;
+                        return h;
                     default:
                         throw new RuntimeException("invalid m value: " + m);
                 }
             } else {
-                throw new RuntimeException("cannot call next until first is called");
+                started = true;
+                return h;
             }
         }
     }
 
-    /**
-     * An example main program.
-     * @param args the command-line args (ignored).
-     */
     public static void main(String[] args) {
         ShellSort<Integer> s = new ShellSort<>(2);
         Integer[] array = {5, 3, 0, 2, 4, 1, 0, 5, 2, 3, 1, 4};

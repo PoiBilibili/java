@@ -34,7 +34,14 @@ public class Benchmark<T> {
      * @return the average number of milliseconds taken for each run of function f.
      */
     public double run(T t, int m) {
-        return 0;  // TODO
+    	for(int i = 0; i<10; i++) f.apply(t);//warm up system
+		long startTime = System.nanoTime();
+		   // ... the code being measured ...
+		while(m>0) {
+			f.apply(t);
+			m--;
+		}
+		return System.nanoTime() - startTime;
     }
 
     private final Function<T, Void> f;
